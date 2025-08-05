@@ -52,4 +52,5 @@ public class Album {
         return name == null && artist == null && yearOfRelease == null && rating == null;
     }
 
+
 }

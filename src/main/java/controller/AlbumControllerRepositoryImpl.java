@@ -1,10 +1,17 @@
 package controller;
 
 import model.Album;
+import util.AlbumFullException;
+import util.AlbumNotFoundException;
 
 public class AlbumControllerRepositoryImpl implements AlbumControllerRepository {
 
-    private Album[] model = new Album[10];
+    public Album[] model = new Album[10];
+
+    public AlbumControllerRepositoryImpl(){
+
+    }
+
 
     @Override
     public Album[] getAllAlbum() {
@@ -14,7 +21,7 @@ public class AlbumControllerRepositoryImpl implements AlbumControllerRepository 
     @Override
     public Album getAlbum(String name) {
         for (Album album : model) {
-            if (album.getName().equals(name)) {
+            if (album != null && album.getName().equals(name)) {
                 return album;
             }
         }
@@ -23,24 +30,35 @@ public class AlbumControllerRepositoryImpl implements AlbumControllerRepository 
     }
 
     @Override
-    public void addAlbum(Album data) {
+    public void addAlbum(Album data) throws AlbumFullException{
         for(int i = 0; i < model.length; i++){
-            if(model[i].isNull()){
+            if(model[i] == null){
                 model[i] = data;
-                break;
+                return;
             }
         }
+
+        throw new AlbumFullException("Failed to add album, storage is full.");
     }
 
     @Override
-    public void removeAlbum(String name) {
+    public void removeAlbum(String name) throws AlbumNotFoundException{
+        int flag = searchForAlbum(name);
+        if(flag != -1){
+            model[flag] = null;
+            return;
+        }
+
+        throw new AlbumNotFoundException("Album " + name + " is not found, please input a valid album name.");
+    }
+
+    public int searchForAlbum(String name){
         for(int i = 0; i < model.length; i++){
-            if(model[i].getName().equals(name)){
-                model[i].setName(null);
-                model[i].setArtist(null);
-                model[i].setRating(null);
-                model[i].setYearOfRelease(null);
+            if(model[i] != null && model[i].getName().equals(name)){
+                return i;
             }
         }
+        return -1;
     }
+
 }
